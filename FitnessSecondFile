@@ -1,0 +1,100 @@
+package fitnessGym;
+import java.io.*;
+import java.net.*;
+import java.util.*;
+public class FitnessSecondFile
+	{
+
+	public static void main(String[] args) throws IOException
+	{
+		String name;
+		Scanner socketIn = null;
+		PrintWriter socketOut = null;
+		boolean ifLogged;
+		String kg;
+		long time;
+		Scanner input= new Scanner(System.in);
+		FitnessClient fitClient=new FitnessClient();
+		int ID;
+		int kgAfter;
+		
+		fitClient.start();
+		synchronized (fitClient)
+		{
+		try {
+			fitClient.wait();
+		} catch (InterruptedException e) {
+			
+		}
+		}
+		Socket socket = new Socket("localhost",4444);
+		
+		   System.out.println("Connected");
+		
+	       socketIn = new Scanner(new BufferedReader(new InputStreamReader(socket.getInputStream())));
+	       System.out.println("Message: "+socketIn.nextLine());
+	       socket.close();
+	      
+	       socket = new Socket("localhost",4444);
+	       name=fitClient.getNickname();
+	       socketOut = new PrintWriter(socket.getOutputStream(), true);
+	       socketOut.println(name);
+	       socket.close();
+	       
+	       socket = new Socket("localhost",4444);
+	       socketIn = new Scanner(new BufferedReader(new InputStreamReader(socket.getInputStream())));
+	       ifLogged=socketIn.nextBoolean();
+	       socket.close();
+	       
+	       if(ifLogged==true)
+	       {
+	    	   System.out.println("You are logged !");
+	       }
+	       else
+	       {
+	    	   System.out.println("new Member !");
+	    	   System.out.println("How many kilograms are You?");
+	    	   socket = new Socket("localhost",4444);
+	    	   kg=input.nextLine();
+		       socketOut = new PrintWriter(socket.getOutputStream(), true);
+		       socketOut.print(kg);
+		       socketOut.flush();
+		       socket.close();
+	       }
+	       
+	       socket = new Socket("localhost",4444);
+	       ID=fitClient.getStuffID();
+	       socketOut = new PrintWriter(socket.getOutputStream(), true);
+	       socketOut.println(ID);
+	       socket.close();
+	       
+	       System.out.print("How long in seconds will you PUMP dude?: ");
+	      
+	       socket = new Socket("localhost",4444);
+	       time=Long.parseLong(input.nextLine());
+	       try {
+			Thread.sleep(time*1000);
+		} catch (InterruptedException e1) {
+			
+		} 
+	       System.out.println("Finish WorkOut");
+	       socketOut = new PrintWriter(socket.getOutputStream(), true);
+	       socketOut.println(time);
+	       socket.close();
+	       
+	       socket = new Socket("localhost",4444);
+	       System.out.print("How many kilogrammes are you after this workout? ");
+	       kgAfter=Integer.parseInt(input.nextLine());
+	       socketOut = new PrintWriter(socket.getOutputStream(), true);
+	       socketOut.println(kgAfter);
+	       socket.close();
+	       
+	       socketIn.close();	
+	       try{
+	    	   fitClient.notify();
+	       }
+	       catch(java.lang.IllegalMonitorStateException e){}
+	       
+	}
+	
+}
