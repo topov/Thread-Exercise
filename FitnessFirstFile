@@ -1,0 +1,196 @@
+package fitnessGym;
+import java.io.*;
+import java.net.*;
+import java.util.*;
+
+
+public class Test {
+
+	public static void main(String[] args) throws IOException
+	{
+		ServerSocket connection;
+		Socket connect = null;
+		Scanner socIn=null;
+	    PrintWriter socketOut = null;
+	    boolean ifLogged;
+	    String kg=null;
+	    int ID=1;
+	    long time;
+	    int kgAfter;
+	    
+	    while (true)
+	    {
+	    	
+			
+	    try
+	    {
+	      connection = new ServerSocket(4444);
+	    }
+	    catch(IOException e){
+	      System.err.println("Can't connect");
+	      return;
+	    }
+	    System.out.println("Connected");
+	    
+	    	try
+	    	{
+			 connect=connection.accept();
+			}
+	    	catch (IOException e) 
+	    	{
+				e.printStackTrace();
+			}
+	    	socketOut = new PrintWriter(connect.getOutputStream(), true);
+	        socketOut.println("logged");
+	       
+
+	        try
+	    	{
+			 connect=connection.accept();
+			}
+	    	catch (IOException e) 
+	    	{
+				e.printStackTrace();
+			}
+	        socIn = new Scanner(new BufferedReader(new InputStreamReader(connect.getInputStream())));
+	        String name=socIn.nextLine();
+		      socIn.close();
+		      
+		     
+		      System.out.println("Name: "+name);
+		      ifLogged=isValidName(name);
+		      try
+		    	{
+				 connect=connection.accept();
+				}
+		    	catch (IOException e) 
+		    	{
+					e.printStackTrace();
+				}
+		    	socketOut = new PrintWriter(connect.getOutputStream(), true);
+		      if(ifLogged==true)
+		      {
+			        socketOut.println(true);
+			        socketOut.close();
+		      }
+		      else
+		      {
+		    	  socketOut.println(false);		  
+		    	  socketOut.close();
+		    	  
+		    	  try
+			    	{
+					 connect=connection.accept();
+					 socIn = new Scanner(new BufferedReader(new InputStreamReader(connect.getInputStream())));
+		    	  kg=socIn.nextLine();
+		    	  socIn.close();
+					}
+			    	catch (IOException e) 
+			    	{
+						e.printStackTrace();
+					}
+		    	  
+		    	  try(PrintWriter outE = new PrintWriter(new BufferedWriter(new FileWriter(name+".doc", true)))) 
+					{
+					    outE.println("The first weight is: "+ kg);
+					}
+					catch (IOException e) {}
+		    	  
+		      }
+		      
+		      try
+		    	{
+				 connect=connection.accept();
+				}
+		    	catch (IOException e) 
+		    	{
+					e.printStackTrace();
+				}
+		        socIn = new Scanner(new BufferedReader(new InputStreamReader(connect.getInputStream())));
+		        ID=Integer.parseInt(socIn.nextLine());
+			    socIn.close();
+			    try(PrintWriter outE = new PrintWriter(new BufferedWriter(new FileWriter(name+".doc", true)))) 
+				{
+				    outE.println("ID stuff number is: "+ID);
+				}
+				catch (IOException e) {}
+			  
+	        
+			    try
+		    	{
+				 connect=connection.accept();
+				}
+		    	catch (IOException e) 
+		    	{
+					e.printStackTrace();
+				}
+		        socIn = new Scanner(new BufferedReader(new InputStreamReader(connect.getInputStream())));
+		        time=Long.parseLong(socIn.nextLine());
+			    socIn.close();
+			    try(PrintWriter outE = new PrintWriter(new BufferedWriter(new FileWriter(name+".doc", true)))) 
+				{
+				    outE.println("The duration of workout is: "+time+"seconds");
+				}
+				catch (IOException e) {}
+			    
+			    try
+		    	{
+				 connect=connection.accept();
+				}
+		    	catch (IOException e) 
+		    	{
+					e.printStackTrace();
+				}
+		        socIn = new Scanner(new BufferedReader(new InputStreamReader(connect.getInputStream())));
+		        kgAfter=Integer.parseInt(socIn.nextLine());
+			    socIn.close();
+			    try(PrintWriter outE = new PrintWriter(new BufferedWriter(new FileWriter(name+".doc", true)))) 
+				{
+				    outE.println("Your weight after this workout is: "+kgAfter+"kg");
+				}
+				catch (IOException e) {}
+	        
+		      
+				connection.close();
+				
+	    		
+	    }
+
+	}
+	synchronized public static boolean isValidName(String name)
+	{
+		String fileName=name;
+		java.io.PrintStream out = null;
+		File f=new File(fileName+".doc");
+		try { 
+			if (!f.exists())
+			{
+				Scanner input=new Scanner(System.in);
+				out = new java.io.PrintStream(new java.io.FileOutputStream(fileName+".doc"));
+				
+				out.printf("Client: "+fileName+"\n");
+				return false;
+			}
+			else
+			{	
+				try(PrintWriter outE = new PrintWriter(new BufferedWriter(new FileWriter(fileName+".doc", true)))) 
+				{
+					outE.println("=====================NEW WORKOUT=====================");
+				    outE.println("Client: "+fileName);
+				}
+				catch (IOException e) {}
+			}
+
+		} catch (java.io.FileNotFoundException e) {
+			System.err.println("FileNotFound");
+			
+		} finally {
+			if (out != null)
+				out.close();
+		}
+		return true;
+	}
+	
+
+}
+
